@@ -1,16 +1,23 @@
 package com.franc.restful.domain.account.controller;
 
+import javax.validation.Valid;
+
 import com.franc.restful.domain.account.domain.Account;
 import com.franc.restful.domain.account.dto.AccountDTO;
+import com.franc.restful.domain.account.dto.AccountRequestDTO;
 import com.franc.restful.domain.account.dto.AccountResponseDTO;
 import com.franc.restful.domain.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AccountRestController {
@@ -18,21 +25,38 @@ public class AccountRestController {
     private final AccountRepository accountRepository;
 
     @PostMapping("/accounts")
-    public ResponseEntity<?> insertAccount(@RequestBody HashMap<String, String> req) {
+    public ResponseEntity<?> insert(@RequestBody @Valid AccountRequestDTO request, BindingResult bindingResult) {
+        Map<String, Object> response = new HashMap<>();
+        String resCd = "0000";
+        String resMsg = "SUCCESS";
+
+        if(bindingResult.hasErrors()) {
+            bindingResult.getAllErrors()
+                    .forEach(objectError -> {
+                        log.error("code : " + objectError.getCode());
+                        log.error("defaultMessage : " + objectError.getDefaultMessage());
+                        log.error("objectName : " + objectError.getObjectName());
+                    });
+
+            resCd = "9999";
+            resMsg = "FAIL";
+
+            response.put("resCd", resCd);
+            response.put("resMsg", resMsg);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         accountRepository.save(Account.builder()
-                        .email((String) req.get("email"))
-                        .name((String) req.get("name"))
-                        .nickname((String) req.get("nickname"))
-                        .phoneNo((String) req.get("phoneNo"))
-                        .sex((String) req.get("sex"))
+                        .email(request.getEmail())
+                        .name(request.getName())
+                        .nickname(request.getNickname())
+                        .phoneNo(request.getPhoneNo())
+                        .sex(request.getSex())
                         .build());
 
-        AccountResponseDTO res = new AccountResponseDTO();
-        res.setResCd("0000");
-        res.setResMsg("SUCCESS");
-
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        response.put("resCd", resCd);
+        response.put("resMsg", resMsg);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/accounts/{id}")

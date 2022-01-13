@@ -1,6 +1,7 @@
 package com.franc.restful.domain.account.controller;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 
 import com.franc.restful.domain.account.domain.Account;
 import com.franc.restful.domain.account.dto.AccountDTO;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class AccountRestController {
 
     private final AccountRepository accountRepository;
@@ -63,6 +66,28 @@ public class AccountRestController {
     public ResponseEntity<?> selectAccount(@PathVariable Long id) throws Exception{
 
         Account account = accountRepository.findById(id).orElseThrow(Exception::new);
+
+        AccountDTO accountDTO = new AccountDTO();
+        accountDTO.setId(account.getId());
+        accountDTO.setEmail(account.getEmail());
+        accountDTO.setName(account.getName());
+        accountDTO.setNickname(account.getNickname());
+        accountDTO.setPhoneNo(account.getPhoneNo());
+        accountDTO.setSex(account.getSex());
+
+        AccountResponseDTO res = new AccountResponseDTO();
+        res.setResCd("0000");
+        res.setResMsg("SUCCESS");
+        res.setData(accountDTO);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/accountsByEmail/{email}")
+    public ResponseEntity<?> selectAccountByEmail(
+            @PathVariable @Email(message = "이메일 형식이 아닙니다.") String email) throws Exception{
+
+        Account account = accountRepository.findByEmail(email).orElseThrow(Exception::new);
 
         AccountDTO accountDTO = new AccountDTO();
         accountDTO.setId(account.getId());

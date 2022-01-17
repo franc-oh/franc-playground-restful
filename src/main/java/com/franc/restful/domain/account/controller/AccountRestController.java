@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -63,44 +64,25 @@ public class AccountRestController {
     }
 
     @GetMapping("/accounts/{id}")
-    public ResponseEntity<?> selectAccount(@PathVariable Long id) throws Exception{
+    public ResponseEntity<?> getAccount(@PathVariable Long id) throws Exception{
 
-        Account account = accountRepository.findById(id).orElseThrow(Exception::new);
+        Account account = accountRepository.findById(id).orElse(new Account());
 
-        AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setId(account.getId());
-        accountDTO.setEmail(account.getEmail());
-        accountDTO.setName(account.getName());
-        accountDTO.setNickname(account.getNickname());
-        accountDTO.setPhoneNo(account.getPhoneNo());
-        accountDTO.setSex(account.getSex());
-
-        AccountResponseDTO res = new AccountResponseDTO();
-        res.setResCd("0000");
-        res.setResMsg("SUCCESS");
-        res.setData(accountDTO);
-
-        return new ResponseEntity<>(res, HttpStatus.OK);
-    }
-
-    @GetMapping("/accountsByEmail/{email}")
-    public ResponseEntity<?> selectAccountByEmail(
-            @PathVariable @Email(message = "이메일 형식이 아닙니다.") String email) throws Exception{
-
-        Account account = accountRepository.findByEmail(email).orElseThrow(Exception::new);
-
-        AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setId(account.getId());
-        accountDTO.setEmail(account.getEmail());
-        accountDTO.setName(account.getName());
-        accountDTO.setNickname(account.getNickname());
-        accountDTO.setPhoneNo(account.getPhoneNo());
-        accountDTO.setSex(account.getSex());
+        AccountDTO accountDTO = AccountDTO.builder()
+                .id(account.getId())
+                .name(account.getName())
+                .email(account.getEmail())
+                .nickname(account.getNickname())
+                .phoneNo(account.getPhoneNo())
+                .sex(account.getSex())
+                .build();
 
         AccountResponseDTO res = new AccountResponseDTO();
         res.setResCd("0000");
         res.setResMsg("SUCCESS");
         res.setData(accountDTO);
+
+
 
         return new ResponseEntity<>(res, HttpStatus.OK);
     }

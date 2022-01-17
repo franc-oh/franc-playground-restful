@@ -1,7 +1,9 @@
 package com.franc.restful.domain.account.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class AccountDTO {
 

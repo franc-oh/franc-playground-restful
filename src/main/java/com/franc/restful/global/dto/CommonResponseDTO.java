@@ -4,8 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class ResponseDTO {
-
+public class CommonResponseDTO {
     private String resCd;
     private String resMsg;
 }

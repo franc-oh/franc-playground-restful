@@ -1,12 +1,11 @@
 package com.franc.restful.domain.account.controller;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
 
 import com.franc.restful.domain.account.domain.Account;
 import com.franc.restful.domain.account.dto.AccountDTO;
 import com.franc.restful.domain.account.dto.AccountRequestDTO;
-import com.franc.restful.domain.account.dto.AccountResponseDTO;
+import com.franc.restful.domain.account.dto.AccountGlobalResponseDTO;
 import com.franc.restful.domain.account.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -66,7 +64,9 @@ public class AccountRestController {
     @GetMapping("/accounts/{id}")
     public ResponseEntity<?> getAccount(@PathVariable Long id) throws Exception{
 
-        Account account = accountRepository.findById(id).orElse(new Account());
+        if(1==1) throw new Exception("TEST");
+
+        Account account = accountRepository.findById(id).orElseThrow(RuntimeException::new);
 
         AccountDTO accountDTO = AccountDTO.builder()
                 .id(account.getId())
@@ -77,12 +77,10 @@ public class AccountRestController {
                 .sex(account.getSex())
                 .build();
 
-        AccountResponseDTO res = new AccountResponseDTO();
+        AccountGlobalResponseDTO res = new AccountGlobalResponseDTO();
         res.setResCd("0000");
         res.setResMsg("SUCCESS");
         res.setData(accountDTO);
-
-
 
         return new ResponseEntity<>(res, HttpStatus.OK);
     }

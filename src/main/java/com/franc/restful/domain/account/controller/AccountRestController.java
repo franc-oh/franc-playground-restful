@@ -7,6 +7,8 @@ import com.franc.restful.domain.account.dto.AccountDTO;
 import com.franc.restful.domain.account.dto.AccountRequestDTO;
 import com.franc.restful.domain.account.dto.AccountGlobalResponseDTO;
 import com.franc.restful.domain.account.repository.AccountRepository;
+import com.franc.restful.global.exception.GExceptionEnum;
+import com.franc.restful.global.exception.customException.CAccountNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,32 +23,15 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Validated
 public class AccountRestController {
 
     private final AccountRepository accountRepository;
 
     @PostMapping("/accounts")
-    public ResponseEntity<?> insert(@RequestBody @Valid AccountRequestDTO request, BindingResult bindingResult) {
+    public ResponseEntity<?> insert(@RequestBody @Valid AccountRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
         String resCd = "0000";
         String resMsg = "SUCCESS";
-
-        if(bindingResult.hasErrors()) {
-            bindingResult.getAllErrors()
-                    .forEach(objectError -> {
-                        log.error("code : " + objectError.getCode());
-                        log.error("defaultMessage : " + objectError.getDefaultMessage());
-                        log.error("objectName : " + objectError.getObjectName());
-                    });
-
-            resCd = "9999";
-            resMsg = "FAIL";
-
-            response.put("resCd", resCd);
-            response.put("resMsg", resMsg);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
 
         accountRepository.save(Account.builder()
                         .email(request.getEmail())
@@ -64,9 +49,8 @@ public class AccountRestController {
     @GetMapping("/accounts/{id}")
     public ResponseEntity<?> getAccount(@PathVariable Long id) throws Exception{
 
-        if(1==1) throw new Exception("TEST");
-
-        Account account = accountRepository.findById(id).orElseThrow(RuntimeException::new);
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new CAccountNotFoundException());
 
         AccountDTO accountDTO = AccountDTO.builder()
                 .id(account.getId())

@@ -9,6 +9,10 @@ import com.franc.restful.domain.account.dto.AccountGlobalResponseDTO;
 import com.franc.restful.domain.account.repository.AccountRepository;
 import com.franc.restful.global.exception.GExceptionEnum;
 import com.franc.restful.global.exception.customException.CAccountNotFoundException;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +52,14 @@ public class AccountRestController {
     }
 
     @GetMapping("/accounts/{id}")
-    public ResponseEntity<?> getAccount(@PathVariable Long id) throws Exception{
+    @ApiOperation(value = "사용자 조회", notes = "사용자 ID로 사용자 정보를 조회한다.")
+    @ApiImplicitParam(name = "id", value = "사용자 ID", required = true)
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "SUCCESS"),
+            @ApiResponse(code = 400, message = "BAD_REQUEST"),
+            @ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR")
+    })
+    public ResponseEntity<AccountGlobalResponseDTO> getAccount(@PathVariable Long id) throws Exception{
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new CAccountNotFoundException());

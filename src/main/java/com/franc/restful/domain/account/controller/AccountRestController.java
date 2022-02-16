@@ -1,6 +1,6 @@
 package com.franc.restful.domain.account.controller;
 
-import javax.validation.Valid;
+import javax.validation.*;
 
 import com.franc.restful.domain.account.domain.Account;
 import com.franc.restful.domain.account.dto.AccountDTO;
@@ -24,6 +24,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -79,5 +80,41 @@ public class AccountRestController {
         res.setData(accountDTO);
 
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/accounts/test/validation")
+    public void validationTest() {
+
+        AccountDTO account = AccountDTO.builder()
+                .build();
+
+        log.info("validation : " + validateDto(account));
+
+        AccountDTO account2 = AccountDTO.builder()
+                .id(1L)
+                .name("ddd")
+                .email("fr@naver.com")
+                .nickname("zzzz")
+                .sex("M")
+                .phoneNo("01023220000")
+                .build();
+
+        log.info("validation2 : " + validateDto(account2));
+    }
+
+
+    public boolean validateDto(Object obj) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Set<ConstraintViolation<Object>> violations = validator.validate(obj);
+
+        for (ConstraintViolation<Object> violation : violations) {
+            log.info("err : " + violation.getPropertyPath() + " - " + violation.getMessage());
+        }
+
+        if(!violations.isEmpty()) return false;
+
+        return true;
     }
 }
